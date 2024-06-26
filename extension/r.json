@@ -1,0 +1,308 @@
+[
+    {
+      "Geographic_region": "Americas",
+      "regions": [
+        {
+          "region": "United States",
+          "language": "English",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/us.png",
+          "id": "us-en",
+          "name": "United States",
+          "tld": "com",
+          "country": "us",
+          "lang": "en"
+        },
+        {
+          "region": "Brasil",
+          "language": "português",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/br.png",
+          "id": "br-pt",
+          "name": "Brazil",
+          "tld": "com.br",
+          "country": "br",
+          "lang": "pt"
+        },
+        {
+          "region": "Canada",
+          "language": "English",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/ca.png",
+          "id": "ca-en",
+          "name": "Canada",
+          "tld": "ca",
+          "country": "ca",
+          "lang": "en"
+        },
+        {
+          "region": "Canada",
+          "language": "français",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/ca.png",
+          "id": "ca-fr",
+          "name": "Canada (fr)",
+          "tld": "ca",
+          "country": "ca",
+          "lang": "fr"
+        },
+        {
+          "region": "México",
+          "language": "español",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/mx.png",
+          "id": "mx-es",
+          "name": "Mexico",
+          "tld": "mx",
+          "country": "mx",
+          "lang": "es"
+        },
+        {
+          "region": "Puerto Rico",
+          "language": "español",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/pr.png",
+          "id": "pr-es",
+          "name": "Puerto Rico",
+          "tld": "pr",
+          "country": "pr",
+          "lang": "es"
+        }
+      ]
+    },
+    {
+      "Geographic_region": "Asia Pacific",
+      "regions": [
+        {
+          "region": "Australia",
+          "language": "English",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/au.png",
+          "id": "au-en",
+          "name": "Australia",
+          "tld": "com.au",
+          "country": "au",
+          "lang": "en"
+        },
+        {
+          "region": "India",
+          "language": "English",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/in.png",
+          "id": "in-en",
+          "name": "India",
+          "tld": "co.in",
+          "country": "in",
+          "lang": "en"
+        },
+        {
+          "region": "日本",
+          "language": "日本語",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/jp.png",
+          "id": "jp-ja",
+          "name": "Japan",
+          "tld": "co.jp",
+          "country": "jp",
+          "lang": "ja"
+        },
+        {
+          "region": "대한민국",
+          "language": "한국어",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/kr.png",
+          "id": "kr-ko",
+          "name": "Korea",
+          "tld": "co.kr",
+          "country": "kr",
+          "lang": "ko"
+        },
+        {
+          "region": "New Zealand",
+          "language": "English",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/nz.png",
+          "id": "nz-en",
+          "name": "New Zealand",
+          "tld": "co.nz",
+          "country": "nz",
+          "lang": "en"
+        },
+        {
+          "region": "Singapore",
+          "language": "English",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/sg.png",
+          "id": "sg-en",
+          "name": "Singapore",
+          "tld": "com.sg",
+          "country": "sg",
+          "lang": "en"
+        },
+        {
+          "region": "台灣",
+          "language": "中文",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/tw.png",
+          "id": "tw-zh",
+          "name": "Taiwan",
+          "tld": "com.tw",
+          "country": "tw",
+          "lang": "zh-tw"
+        }
+      ]
+    },
+    {
+      "Geographic_region": "Europe",
+      "regions": [
+        {
+          "region": "Österreich",
+          "language": "Deutsch",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/at.png",
+          "id": "at-de",
+          "name": "Austria",
+          "tld": "at",
+          "country": "at",
+          "lang": "de"
+        },
+        {
+          "region": "België",
+          "language": "Nederlands",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/be.png",
+          "id": "be-nl",
+          "name": "Belgium (nl)",
+          "tld": "be",
+          "country": "be",
+          "lang": "nl"
+        },
+        {
+          "region": "Belgique",
+          "language": "français",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/be.png",
+          "id": "be-fr",
+          "name": "Belgium (fr)",
+          "tld": "be",
+          "country": "be",
+          "lang": "fr"
+        },
+        {
+          "region": "Česko",
+          "language": "čeština",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/cz.png",
+          "id": "cz-cs",
+          "name": "Czech Republic",
+          "tld": "cz",
+          "country": "cz",
+          "lang": "cs"
+        },
+        {
+          "region": "Danmark",
+          "language": "dansk",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/dk.png",
+          "id": "dk-da",
+          "name": "Denmark",
+          "tld": "dk",
+          "country": "dk",
+          "lang": "da"
+        },
+        {
+          "region": "Suomi",
+          "language": "suomi",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/fi.png",
+          "id": "fi-fi",
+          "name": "Finland",
+          "tld": "fi",
+          "country": "fi",
+          "lang": "fi"
+        },
+        {
+          "region": "France",
+          "language": "français",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/fr.png",
+          "id": "fr-fr",
+          "name": "France",
+          "tld": "fr",
+          "country": "fr",
+          "lang": "fr"
+        },
+        {
+          "region": "Deutschland",
+          "language": "Deutsch",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/de.png",
+          "id": "de-de",
+          "name": "Germany",
+          "tld": "de",
+          "country": "de",
+          "lang": "de"
+        },
+        {
+          "region": "Polska",
+          "language": "polski",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/pl.png",
+          "id": "pl-pl",
+          "name": "Poland",
+          "tld": "pl",
+          "country": "pl",
+          "lang": "pl"
+        },
+        {
+          "region": "Ireland",
+          "language": "English",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/ie.png",
+          "id": "ie-en",
+          "name": "Ireland",
+          "tld": "ie",
+          "country": "ie",
+          "lang": "en"
+        },
+        {
+          "region": "Italia",
+          "language": "italiano",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/it.png",
+          "id": "it-it",
+          "name": "Italy",
+          "tld": "it",
+          "country": "it",
+          "lang": "it"
+        },
+        {
+          "region": "Nederland",
+          "language": "Nederlands",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/nl.png",
+          "id": "nl-nl",
+          "name": "Netherlands",
+          "tld": "nl",
+          "country": "nl",
+          "lang": "nl"
+        },
+        {
+          "region": "Norge",
+          "language": "norsk",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/no.png",
+          "id": "no-no",
+          "name": "Norway",
+          "tld": "no",
+          "country": "no",
+          "lang": "no"
+        },
+        {
+          "region": "Portugal",
+          "language": "português",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/pt.png",
+          "id": "pt-pt",
+          "name": "Portugal",
+          "tld": "pt",
+          "country": "pt",
+          "lang": "pt"
+        },
+        {
+          "region": "España",
+          "language": "español",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/es.png",
+          "id": "es-es",
+          "name": "Spain",
+          "tld": "es",
+          "country": "es",
+          "lang": "es"
+        },
+        {
+          "region": "Sverige",
+          "language": "svenska",
+          "img_src": "https://ssl.gstatic.com/store/images/regionflags/se.png",
+          "id": "se-sv",
+          "name": "Sweden",
+          "tld": "se",
+          "country": "se",
+          "lang": "sv"
+        }
+      ]
+    }
+  ]
+  

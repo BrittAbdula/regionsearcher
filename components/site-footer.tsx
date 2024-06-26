@@ -28,11 +28,11 @@ const footerNavs = [
         name: "Discord",
       },
       {
-        href: "/",
+        href: "https://x.com/auroroa",
         name: "Twitter",
       },
       {
-        href: "mailto:hello@chatcollect.com",
+        href: "mailto:support@regionsearcher.com",
         name: "Email",
       },
     ],
@@ -41,12 +41,12 @@ const footerNavs = [
     label: "Legal",
     items: [
       {
-        href: "/terms",
+        href: "/terms-of-service",
         name: "Terms",
       },
 
       {
-        href: "/privacy",
+        href: "/privacy-policy",
         name: "Privacy",
       },
     ],
@@ -122,7 +122,7 @@ export function SiteFooter() {
           <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">
             Copyright © {new Date().getFullYear()}{" "}
             <Link href="/" className="cursor-pointer">
-              Magic UI
+              RegionSearcher
             </Link>
             . All Rights Reserved.
           </span>

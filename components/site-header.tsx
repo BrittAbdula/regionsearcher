@@ -99,13 +99,13 @@ export function SiteHeader() {
               </a>
             </li>
             <li className="hidden items-center justify-center px-2 py-0.5 lg:flex">
-              <a href="#">Features</a>
+              <a href="#features">Features</a>
             </li>
             <li className="hidden items-center justify-center px-2 py-0.5 lg:flex">
-              <a href="#">Extension</a>
+              <a href="#about">About</a>
             </li>
             <li className="hidden items-center justify-center px-2 py-0.5 lg:flex">
-              <a href="#">Contact</a>
+              <a href="#faq">FAQ</a>
             </li>
             <AnimatePresence>
               <motion.div
