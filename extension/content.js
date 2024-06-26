@@ -3,27 +3,29 @@ console.log("Content script starting to load...");
 let mySidebarElement = null;
 
 function createSidebar() {
-    // 检查是否已存在旧的侧边栏，如果存在则移除
-    const existingSidebar = document.getElementById('myChromeExtensionSidebar');
-    if (existingSidebar) {
-        existingSidebar.remove();
+    if (mySidebarElement) {
+        return;
     }
 
     mySidebarElement = document.createElement('iframe');
     mySidebarElement.id = 'myChromeExtensionSidebar';
     mySidebarElement.src = chrome.runtime.getURL('sidebar.html');
-    mySidebarElement.style.cssText = `
-    position: fixed;
-    top: 0;
-    right: -300px;
-    width: 300px;
-    height: 100%;
-    border: none;
-    transition: right 0.3s ease-in-out;
-    z-index: 9999;
-  `;
+    mySidebarElement.style.position = 'fixed';
+    mySidebarElement.style.top = '0';
+    mySidebarElement.style.right = '-300px';
+    mySidebarElement.style.width = '300px';
+    mySidebarElement.style.height = '100%';
+    mySidebarElement.style.border = 'none';
+    mySidebarElement.style.transition = 'right 0.3s ease-in-out';
+    mySidebarElement.style.zIndex = '9999';
+
 
     document.body.appendChild(mySidebarElement);
+    
+    // 在侧边栏加载完成后，触发加载保存的状态
+    mySidebarElement.onload = function () {
+        mySidebarElement.contentWindow.postMessage({ action: "loadSavedStates" }, "*");
+    };
 }
 
 function toggleSidebar() {
@@ -48,12 +50,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else if (request.action === "ping") {
         sendResponse({ status: "alive" });
     } else if (request.action === "closeSidebar") {
+        console.log("Closing sidebar.....");
         // 移除侧边栏
         const sidebarElement = document.getElementById('myChromeExtensionSidebar');
         if (sidebarElement) {
             sidebarElement.remove();
         }
         mySidebarElement = null; // 重置 mySidebarElement 变量
+        sendResponse({ success: true });
     }
 });
 

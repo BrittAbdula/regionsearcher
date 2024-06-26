@@ -16,9 +16,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   const regionsContainer = document.getElementById('regions-container');
   const closeButton = document.getElementById('close-button');
   
-  closeButton.addEventListener('click', function() {
-      // 发送消息给扩展的背景脚本来关闭侧边栏
-      chrome.runtime.sendMessage({action: "closeSidebar"});
+  // 加载保存的选中状态
+  loadSelectedStates();
+
+  // 发送关闭消息并添加调试信息
+  closeButton.addEventListener('click', function () {
+    saveSelectedStates();  // 保存选中状态
+    chrome.runtime.sendMessage({ action: "closeSidebar" }, function (response) {
+      if (chrome.runtime.lastError) {
+        console.error("Error sending closeSidebar message:", chrome.runtime.lastError);
+      } else {
+        console.log("closeSidebar message sent successfully:", response);
+      }
+    });
   });
 
   // 使用事件委托来处理所有区域卡片的点击
@@ -29,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (checkbox && e.target !== checkbox) {
         checkbox.checked = !checkbox.checked;
         checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+        saveSelectedStates();  // 保存选中状态
       }
     }
   });
@@ -44,7 +55,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
-      checkbox.id = region.id;
+      // checkbox.id = region.id;
+      checkbox.id = `region-${region.id}`; // 添加唯一的 id
       checkbox.value = region.id;
 
       const img = document.createElement('img');
@@ -77,6 +89,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       performSearch();
     }
   });
+
+  window.addEventListener('message', function(event) {
+    if (event.data.action === "loadSavedStates") {
+      loadSelectedStates();
+    }
+  }, false);
 
   // 搜索按钮点击事件
   searchButton.addEventListener('click', performSearch);
@@ -114,3 +132,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 });
+
+// 保存选中的状态
+function saveSelectedStates() {
+  const selectedStates = {};
+  document.querySelectorAll('.region-card input[type="checkbox"]').forEach(checkbox => {
+    selectedStates[checkbox.id] = checkbox.checked;
+  });
+  chrome.storage.local.set({ selectedRegions: selectedStates }, function() {
+    console.log('Selected states saved');
+  });
+}
+
+// 加载保存的选中状态
+function loadSelectedStates() {
+  chrome.storage.local.get(['selectedRegions'], function(result) {
+    const selectedStates = result.selectedRegions || {};
+    document.querySelectorAll('.region-card input[type="checkbox"]').forEach(checkbox => {
+      if (selectedStates.hasOwnProperty(checkbox.id)) {
+        checkbox.checked = selectedStates[checkbox.id];
+        const regionCard = checkbox.closest('.region-card');
+        if (regionCard) {
+          regionCard.classList.toggle('selected', checkbox.checked);
+        }
+      }
+    });
+  });
+}

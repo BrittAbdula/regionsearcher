@@ -167,7 +167,8 @@ main::-webkit-scrollbar {
     height: 16px;
     max-height: 100px;
     object-fit: contain;
-    padding-right: 4px;
+    padding-left: 12px;
+    padding-right: 8px;
 }
 
 .region-card {

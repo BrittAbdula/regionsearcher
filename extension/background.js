@@ -2,21 +2,30 @@ console.log("Background script loading...");
 
 function injectContentScript(tabId) {
   return new Promise((resolve, reject) => {
-    chrome.scripting.executeScript(
-      {
-        target: { tabId: tabId },
-        files: ['content.js'],
-      },
-      (results) => {
-        if (chrome.runtime.lastError) {
-          console.error('Failed to inject content script:', chrome.runtime.lastError);
-          reject(chrome.runtime.lastError);
-        } else {
-          console.log('Content script injected successfully');
-          resolve();
-        }
-      }
-    );
+      chrome.tabs.sendMessage(tabId, {action: "ping"}, function(response) {
+          if (chrome.runtime.lastError) {
+              // 脚本还没有被注入，现在注入它
+              chrome.scripting.executeScript(
+                  {
+                      target: { tabId: tabId },
+                      files: ['content.js'],
+                  },
+                  (results) => {
+                      if (chrome.runtime.lastError) {
+                          console.error('Failed to inject content script:', chrome.runtime.lastError);
+                          reject(chrome.runtime.lastError);
+                      } else {
+                          console.log('Content script injected successfully', results);
+                          resolve();
+                      }
+                  }
+              );
+          } else {
+              // 脚本已经存在
+              console.log("Content script already exists");
+              resolve();
+          }
+      });
   });
 }
 
@@ -44,8 +53,13 @@ chrome.action.onClicked.addListener(async (tab) => {
 console.log("Background script loaded");
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "contentScriptLoaded") {
-      console.log("Content script loaded in tab:", sender.tab.id);
-      sendResponse({received: true});
-    } 
-  });
+  if (request.action === "contentScriptLoaded") {
+    console.log("Content script loaded in tab:", sender.tab.id);
+    sendResponse({received: true});
+  } else if (request.action === "closeSidebar") {
+    console.log("Closing sidebar from background");
+    chrome.tabs.sendMessage(sender.tab.id, { action: "closeSidebar" });
+    sendResponse({ success: true });
+  }
+});
+
