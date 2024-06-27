@@ -171,7 +171,7 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
               </div>
             </div>
 
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center m-8">
               <Button
                 type="submit"
                 className="rounded-sm md:rounded-full bg-neutral-600 hover:bg-neutral-800 text-white px-8 py-6 text-base font-medium transition-all duration-200 shadow-md hover:shadow-lg">
@@ -181,7 +181,7 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
           </form>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-8 md:px-16 mt-16">
+        <div className="bg-white rounded-lg shadow-md p-8 md:px-16">
           {geographicRegions.map((regionGroup, idx) => (
             <div key={idx} className="mb-6 last:mb-0">
               <h2 className="text-xl md:text-2xl font-semibold mb-4 text-left border-b pb-2">{regionGroup.Geographic_region}</h2>
