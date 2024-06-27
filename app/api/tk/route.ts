@@ -1,5 +1,4 @@
-// pages/api/translate-keywords.js
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // 模拟翻译 API（实际使用时替换为真实的翻译 API）
 async function translateQuery(query: string, region: string, language: string) {
@@ -9,7 +8,7 @@ async function translateQuery(query: string, region: string, language: string) {
     return translatedText;
 }
 
-export async function POST(req: NextResponse) {
+export async function POST(req: NextRequest) {
     try {
         const { searchInput, regions } = await req.json();
 
@@ -51,10 +50,9 @@ function getTranslationPrompt(query: string, region: string, language: string) {
     Translated query:`;
 }
 
+const apiKey = process.env.OPENAI_API_KEY!
 
-  const apiKey = process.env.OPENAI_API_KEY!
-
-  async function callOpenAIAPI(prompt: string) {
+async function callOpenAIAPI(prompt: string) {
     try {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
