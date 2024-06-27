@@ -64,10 +64,10 @@ export function SiteHeader() {
       className="mx-auto flex w-full max-w-5xl items-center justify-between bg-transparent px-10 py-7 dark:bg-transparent"
     >
       <div className="hidden flex-row items-center justify-center gap-2 lg:flex">
-        <a href="#" className="flex h-8 w-8">
+        <a href="/" className="flex h-8 w-8">
           <img src="/icon.png" className="h-full w-full" />
         </a>
-        <a href="#">Region Searcher</a>
+        <a href="/">Region Searcher</a>
       </div>
       {/* <h1 className="hidden lg:flex">Logo</h1> */}
       <div className="fixed inset-x-0 top-6 z-50 flex items-center justify-center">
@@ -91,21 +91,21 @@ export function SiteHeader() {
         >
           <ul className="flex h-full w-full flex-row justify-between gap-6 lg:flex-row lg:justify-start lg:gap-1">
             <li className="flex items-center justify-center px-2 py-0.5">
-              <a href="#" className="flex h-8 w-8 lg:hidden">
+              <a href="/" className="flex h-8 w-8 lg:hidden">
                 <img src="/icon.png" className="h-full w-full" />
               </a>
-              <a href="#" className="hidden lg:flex">
+              <a href="/" className="hidden lg:flex">
                 Home
               </a>
             </li>
             <li className="hidden items-center justify-center px-2 py-0.5 lg:flex">
-              <a href="#features">Features</a>
+              <a href="/#features">Features</a>
             </li>
             <li className="hidden items-center justify-center px-2 py-0.5 lg:flex">
-              <a href="#about">About</a>
+              <a href="/#about">About</a>
             </li>
             <li className="hidden items-center justify-center px-2 py-0.5 lg:flex">
-              <a href="#faq">FAQ</a>
+              <a href="/#faq">FAQ</a>
             </li>
             <AnimatePresence>
               <motion.div

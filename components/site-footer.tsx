@@ -10,11 +10,11 @@ const footerNavs = [
         name: "Email Collection",
       },
       {
-        href: "/pricing",
+        href: "/",
         name: "Pricing",
       },
       {
-        href: "/faq",
+        href: "/#faq",
         name: "FAQ",
       },
     ],
