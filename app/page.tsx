@@ -9,7 +9,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   const canonical = `/`;
 
   return {
-    metadataBase: new URL('https://regionsearcher.com'),
+    metadataBase: new URL('https://regionsearcher.com/'),
     title: {
       absolute: "Region Searcher: Quick, Easy, Time-Saving Global Search Tool",
       default: "",

@@ -8,7 +8,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   const canonical = `/terms-of-service`;
 
   return {
-      metadataBase: new URL('https://regionsearcher.com'),
+      metadataBase: new URL('https://regionsearcher.com/'),
       title: {
           absolute: "",
           default: "terms-of-service",
