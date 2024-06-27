@@ -11,7 +11,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   return {
     metadataBase: new URL('https://regionsearcher.com'),
     title: {
-      absolute: "One-Click Multi-Region Searcher: Quick, Easy, Time-Saving Global Search Tool",
+      absolute: "Region Searcher: Quick, Easy, Time-Saving Global Search Tool",
       default: "",
       template: "%s | regionsearcher"
     },
@@ -57,7 +57,7 @@ export default async function Home() {
       <section className="w-full py-12 md:py-24 lg:py-32" id="features">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8 text-center">Region Searcher Features</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             <FeatureCard
               title="Global Coverage"
               description="Search across multiple regions and countries simultaneously."
@@ -73,6 +73,15 @@ export default async function Home() {
               description="Select specific regions or countries to focus your search."
               icon="🎛️"
             />
+          </div>
+          <div className="flex justify-center">
+            <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <img
+                src='/one-click-multi-region-searcher.png'
+                alt="One-Click Multi-Region Searcher"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -93,9 +102,34 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="w-full py-12 md:py-24 lg:py-32 flex flex-col md:flex-row items-center justify-center text-center md:text-left" id="demo">
-          <p className="m-8 w-96">Quickly open multi-regional and multi-language Google search results pages to make market insights at your fingertips.</p>
-          <img src="/regionsearcher.webp" alt="Region Searcher" className="max-w-md w-full h-auto mb-4 md:mb-0 md:mr-4 rounded-md" />
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-50" id="demo">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row items-center justify-between">
+            <div className="lg:w-1/2 mb-8 lg:mb-0 lg:pr-12">
+              <h2 className="text-3xl font-bold mb-6 text-center lg:text-left">Global Insights at Your Fingertips</h2>
+              <p className="text-lg mb-6 text-center lg:text-left">
+                Quickly open multi-regional and multi-language Google search results pages to make market insights accessible instantly.
+              </p>
+              <p className="text-lg mb-6 text-center lg:text-left">
+                Transform Your Business Strategy with Our Multi-Region Search Tool - from one country to multiple countries!
+              </p>
+              <div className="text-center lg:text-left">
+                <a href="#" className="inline-block bg-neutral-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-neutral-700 transition duration-300">
+                  Try Region Searcher Now
+                </a>
+              </div>
+            </div>
+            <div className="lg:w-1/2 flex justify-center">
+              <div className="w-full max-w-md">
+                <img
+                  src="/monthly-growth-data-for-different-countries.png"
+                  alt="Monthly Growth Data for Different Countries"
+                  className="w-full h-auto rounded-lg shadow-lg"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
 

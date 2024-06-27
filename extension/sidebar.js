@@ -15,9 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const searchButton = document.getElementById('search-button');
   const regionsContainer = document.getElementById('regions-container');
   const closeButton = document.getElementById('close-button');
-  
-  // 加载保存的选中状态
-  loadSelectedStates();
+  const translateCheckbox = document.getElementById('translate-checkbox');
 
   // 发送关闭消息并添加调试信息
   closeButton.addEventListener('click', function () {
@@ -81,36 +79,84 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
+  // 加载保存的选中状态
+  loadSelectedStates();
+
   searchInput.addEventListener('keydown', (e) => {
     console.log('Key pressed:', e.key); // 调试语句
     if (e.key === 'Enter') {
       e.preventDefault(); // 阻止默认的表单提交行为
-      console.log('Enter key pressed, calling performSearch()'); // 调试语句
-      performSearch();
+      handleSearch();
     }
   });
 
-  window.addEventListener('message', function(event) {
+  window.addEventListener('message', function (event) {
     if (event.data.action === "loadSavedStates") {
       loadSelectedStates();
     }
   }, false);
 
   // 搜索按钮点击事件
-  searchButton.addEventListener('click', performSearch);
-  // 准备要打开的 URL 数组
-  const urlsToOpen = [];
+  searchButton.addEventListener('click', handleSearch);
 
-  // 执行搜索
-  function performSearch() {
-    const query = encodeURIComponent(searchInput.value);
+  // 处理搜索
+  async function handleSearch() {
+    const query = searchInput.value;
     const selectedRegions = Array.from(document.querySelectorAll('.region-card input:checked'))
       .map(checkbox => checkbox.value);
 
+    if (translateCheckbox.checked) {
+      // 如果需要翻译，调用翻译API
+      try {
+        const translations = await translateKeywords(query, selectedRegions);
+        performSearch(translations);
+      } catch (error) {
+        console.error('Translation error:', error);
+        alert('An error occurred during translation. Please try again.');
+      }
+    } else {
+      // 如果不需要翻译，直接搜索
+      const searchData = selectedRegions.map(id => ({ id, query }));
+      performSearch(searchData);
+    }
+  }
+
+  // 翻译关键词
+  async function translateKeywords(query, selectedRegions) {
+    const allRegions = regionsData.flatMap(geoRegion => geoRegion.regions);
+    const selectedRegionObjects = selectedRegions.map(id => allRegions.find(r => r.id === id));
+
+    try {
+      const response = await fetch('http://localhost:3000/api/tk', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ searchInput: query, regions: selectedRegionObjects }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // 假设 API 返回的格式是 { translations: [{ id, query }] }
+      return data.translations;
+    } catch (error) {
+      console.error('Error calling translation API:', error);
+      throw error;
+    }
+  }
+
+  // 执行搜索
+  function performSearch(searchData) {
+    // 准备要打开的 URL 数组
+    const urlsToOpen = [];
     const allRegions = regionsData.flatMap(geoRegion => geoRegion.regions);
 
-    selectedRegions.forEach((regionId) => {
-      const region = allRegions.find((r) => r.id === regionId);
+    searchData.forEach(({ id, query }) => {
+      const region = allRegions.find((r) => r.id === id);
       if (region) {
         const tdl = region.tld;
         const gl = region.country;
@@ -123,9 +169,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     // 创建新的浏览器窗口并打开多个标签页
     if (urlsToOpen.length > 0) {
-      chrome.windows.create({ url: urlsToOpen[0] }, (newWindow) => {
+      chrome.windows.create({ url: urlsToOpen[0] }, async (newWindow) => {
         // 打开第一个 URL 后，在同一个窗口中打开其余的 URL
         for (let i = 1; i < urlsToOpen.length; i++) {
+          await new Promise(resolve => setTimeout(resolve, 300));
           chrome.tabs.create({ windowId: newWindow.id, url: urlsToOpen[i] });
         }
       });
@@ -139,14 +186,14 @@ function saveSelectedStates() {
   document.querySelectorAll('.region-card input[type="checkbox"]').forEach(checkbox => {
     selectedStates[checkbox.id] = checkbox.checked;
   });
-  chrome.storage.local.set({ selectedRegions: selectedStates }, function() {
+  chrome.storage.local.set({ selectedRegions: selectedStates }, function () {
     console.log('Selected states saved');
   });
 }
 
 // 加载保存的选中状态
 function loadSelectedStates() {
-  chrome.storage.local.get(['selectedRegions'], function(result) {
+  chrome.storage.local.get(['selectedRegions'], function (result) {
     const selectedStates = result.selectedRegions || {};
     document.querySelectorAll('.region-card input[type="checkbox"]').forEach(checkbox => {
       if (selectedStates.hasOwnProperty(checkbox.id)) {

@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 
@@ -30,7 +30,9 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
 
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [translateSearch, setTranslateSearch] = useState(false);
+  const [translations, setTranslations] = useState<any[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -38,6 +40,14 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
     if (storedRegions) {
       setSelectedRegions(JSON.parse(storedRegions));
     }
+    
+    const focusTimer = setTimeout(() => {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
+    }, 100);
+  
+    return () => clearTimeout(focusTimer);
   }, []);
 
   useEffect(() => {
@@ -56,15 +66,68 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
   }
 
   function handleButtonClick() {
+    const searchInput = document.getElementById('searchinput') as HTMLInputElement;
+    const q = searchInput.value.trim();
+  
+    if (!q) {
+      // 如果搜索词为空，弹出提示
+      alert("Please Enter a Search Query");
+      searchInput.focus();  // 将焦点放回输入框
+      return;  // 终止函数执行
+    }
+  
     selectedRegions.forEach((region) => {
       const tdl = allRegions.find((r) => r.id === region)?.tld;
       const gl = allRegions.find((r) => r.id === region)?.country;
       const hl = allRegions.find((r) => r.id === region)?.lang;
-      const q = encodeURIComponent((document.getElementById('searchinput') as HTMLInputElement).value);
+      const encodedQ = encodeURIComponent(q);
       const v = '&gl=' + gl + '&hl=' + hl;
-      const searchUrl = tdl ? `https://www.google.${tdl}/search?q=${q}${v}` : `https://www.google.com/search?q=${q}${v}`;
+      const searchUrl = tdl ? `https://www.google.${tdl}/search?q=${encodedQ}${v}` : `https://www.google.com/search?q=${encodedQ}${v}`;
       window.open(searchUrl, "_blank");
     });
+  }
+
+  async function handleTranslateAndSearch() {
+    if (translateSearch) {
+      const searchInput = (document.getElementById('searchinput') as HTMLInputElement).value;
+      const selectedRegionObjects = allRegions.filter(region => selectedRegions.includes(region.id));
+
+      try {
+        const response = await fetch('/api/tk', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ searchInput, regions: selectedRegionObjects }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        setTranslations(data.translations);
+
+        // 使用翻译后的关键词打开搜索标签
+        data.translations.forEach((translation: { id: string, query: string }) => {
+          const region = selectedRegionObjects.find(r => r.id === translation.id);
+          if (region) {
+            const tdl = region.tld;
+            const gl = region.country;
+            const hl = region.lang;
+            const q = encodeURIComponent(translation.query);
+            const v = '&gl=' + gl + '&hl=' + hl;
+            const searchUrl = tdl ? `https://www.google.${tdl}/search?q=${q}${v}` : `https://www.google.com/search?q=${q}${v}`;
+            window.open(searchUrl, "_blank");
+          }
+        });
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    } else {
+      // 如果不需要翻译，直接使用原来的搜索逻辑
+      handleButtonClick();
+    }
   }
 
   if (!isClient) {
@@ -72,51 +135,62 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
   }
 
   return (
-    <section className="w-full py-12 md:py-24 lg:py-16 bg-gray-50">
+    <section className="w-full py-8 md:py-12 lg:py-16 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl mb-4">Multi-Region Search</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            One-click to open the global search perspective
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tighter sm:text-5xl mb-4">Multi-Region Search</h1>
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+          One Click to Open Google Search Results Pages in Multiple Locations
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto mb-12">
-          <form onSubmit={(e) => {e.preventDefault(); handleButtonClick();}} target="_blank" className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="flex items-center w-full border rounded-full shadow px-4 py-2 bg-white">
-              <i className="fas fa-search text-gray-500 mr-2"></i>
-              <input id="searchinput" type="text" className="flex-grow focus:outline-none" placeholder="Enter your search query" />
-              <i className="fas fa-microphone text-blue-500 ml-2"></i>
-              <i className="fas fa-camera text-blue-500 ml-2"></i>
+        <div className="max-w-4xl mx-auto mb-8">
+          <form onSubmit={(e) => { e.preventDefault(); handleTranslateAndSearch(); }} className="w-full">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center w-full border border-gray-300 rounded-lg md:rounded-full shadow-md hover:shadow-lg focus-within:shadow-lg bg-white transition-shadow duration-200">
+              <div className="flex items-center flex-grow p-4 md:py-3 md:px-6">
+                <i className="fas fa-search text-gray-400 mr-4 text-xl"></i>
+                <input
+                  id="searchinput"
+                  ref={searchInputRef}
+                  type="text"
+                  className="flex-grow text-lg focus:outline-none bg-transparent h-10 md:h-12"
+                  placeholder="Enter your search query"
+                />
+              </div>
+
+              <div className="flex items-center justify-between md:justify-end p-3 md:p-2 md:pr-4 border-t md:border-t-0 md:border-l border-gray-300">
+                <div className="flex items-center justify-center">
+                  <Checkbox
+                    id="translate"
+                    checked={translateSearch}
+                    onCheckedChange={() => setTranslateSearch(!translateSearch)}
+                    className="mr-2 h-4 w-4"
+                  />
+                  <label htmlFor="translate" className="text-sm cursor-pointer whitespace-nowrap">Translate Keywords for Regions</label>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <Button type="submit" className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2">
+
+            <div className="flex justify-center mt-4">
+              <Button
+                type="submit"
+                className="rounded-sm md:rounded-full bg-neutral-600 hover:bg-neutral-800 text-white px-8 py-6 text-base font-medium transition-all duration-200 shadow-md hover:shadow-lg">
                 Region Search
               </Button>
             </div>
-              <div className="flex items-center">
-                <Checkbox
-                  id="translate"
-                  checked={translateSearch}
-                  onCheckedChange={() => setTranslateSearch(!translateSearch)}
-                  className="mr-2"
-                />
-                <label htmlFor="translate" className="text-sm cursor-pointer">Translate Keywords for Regions</label>
-              </div>
           </form>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-8 md:px-16 mt-16">
           {geographicRegions.map((regionGroup, idx) => (
-            <div key={idx} className="mb-4 last:mb-0">
-              <h2 className="text-2xl font-semibold mb-4 text-left border-b pb-2">{regionGroup.Geographic_region}</h2>
-              <div className="flex flex-wrap justify-start gap-4">
+            <div key={idx} className="mb-6 last:mb-0">
+              <h2 className="text-xl md:text-2xl font-semibold mb-4 text-left border-b pb-2">{regionGroup.Geographic_region}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {regionGroup.regions.map((region) => (
                   <div
                     key={region.id}
-                    className={`flex items-center p-3 border rounded-md cursor-pointer transition-colors duration-200 w-48 ${
-                      selectedRegions.includes(region.id) ? 'bg-blue-100' : 'hover:bg-gray-100'
-                    }`}
+                    className={`flex items-center p-3 border rounded-md cursor-pointer transition-colors duration-200 ${selectedRegions.includes(region.id) ? 'bg-blue-100' : 'hover:bg-gray-100'
+                      }`}
                     onClick={() => handleSelectRegion(region.id)}
                   >
                     <Checkbox

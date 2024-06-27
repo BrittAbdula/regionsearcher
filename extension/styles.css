@@ -111,14 +111,21 @@ main::-webkit-scrollbar {
 
 #search-container {
     margin-bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
+
 #search-input {
-    padding: 12px;
+    flex: 1;
+    padding: 12px 20px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 16px;
+    box-sizing: border-box;
 }
+
 
 #search-button {
     padding: 12px 20px;
@@ -159,7 +166,7 @@ main::-webkit-scrollbar {
 
 #regions-container > div:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    background-color: lightsteelblue;
+    background-color: rgb(219 234 254);
 }
 
 #regions-container img {
@@ -175,6 +182,10 @@ main::-webkit-scrollbar {
     display: flex;
     align-items: center;
     cursor: pointer;
+}
+
+#regions-container .region-card.selected {
+    background-color: rgb(219 234 254);
 }
 
 @media (max-width: 600px) {

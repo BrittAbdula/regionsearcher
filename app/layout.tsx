@@ -5,6 +5,7 @@ import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 
 
 const fontSans = FontSans({
@@ -34,6 +35,7 @@ export default function RootLayout({
         <TooltipProvider>{children}</TooltipProvider>
         <SiteFooter />
       </body>
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
     </html>
   );
 }
