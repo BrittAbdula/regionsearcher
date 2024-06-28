@@ -28,11 +28,12 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
     regionGroup.regions.map((region) => ({ ...region, groupId: regionGroup.Geographic_region }))
   );
 
+  const [searchinput, setSearchinput] = useState('');
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [translateSearch, setTranslateSearch] = useState(false);
-  const [translations, setTranslations] = useState<any[]>([]);
   const [isClient, setIsClient] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [generatedLinks, setGeneratedLinks] = useState<{ id: string, url: string, query: string }[]>([]);
 
   useEffect(() => {
     setIsClient(true);
@@ -40,13 +41,13 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
     if (storedRegions) {
       setSelectedRegions(JSON.parse(storedRegions));
     }
-    
+
     const focusTimer = setTimeout(() => {
       if (searchInputRef.current) {
         searchInputRef.current.focus();
       }
     }, 100);
-  
+
     return () => clearTimeout(focusTimer);
   }, []);
 
@@ -65,40 +66,38 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
     });
   }
 
-  function handleButtonClick() {
-    const searchInput = document.getElementById('searchinput') as HTMLInputElement;
-    const q = searchInput.value.trim();
-  
-    if (!q) {
-      // 如果搜索词为空，弹出提示
-      alert("Please Enter a Search Query");
-      searchInput.focus();  // 将焦点放回输入框
-      return;  // 终止函数执行
-    }
-  
-    selectedRegions.forEach((region) => {
-      const tdl = allRegions.find((r) => r.id === region)?.tld;
-      const gl = allRegions.find((r) => r.id === region)?.country;
-      const hl = allRegions.find((r) => r.id === region)?.lang;
-      const encodedQ = encodeURIComponent(q);
-      const v = '&gl=' + gl + '&hl=' + hl;
-      const searchUrl = tdl ? `https://www.google.${tdl}/search?q=${encodedQ}${v}` : `https://www.google.com/search?q=${encodedQ}${v}`;
-      window.open(searchUrl, "_blank");
-    });
+
+  function generateLink(region: Region, query: string) {
+    const tdl = region.tld;
+    const gl = region.country;
+    const hl = region.lang;
+    const encodedQ = encodeURIComponent(query);
+    const v = '&gl=' + gl + '&hl=' + hl;
+    const searchUrl = tdl ? `https://www.google.${tdl}/search?q=${encodedQ}${v}` : `https://www.google.com/search?q=${encodedQ}${v}`;
+    return { id: region.id, url: searchUrl, query: query };
   }
 
-  async function handleTranslateAndSearch() {
-    if (translateSearch) {
-      const searchInput = (document.getElementById('searchinput') as HTMLInputElement).value;
-      const selectedRegionObjects = allRegions.filter(region => selectedRegions.includes(region.id));
+  async function handleSearch() {
+    const searchInput = document.getElementById('searchinput') as HTMLInputElement;
+    const q = searchInput.value.trim();
 
+    if (!q) {
+      alert("Please Enter a Search Query");
+      searchInput.focus();
+      return;
+    }
+
+    const selectedRegionObjects = allRegions.filter(region => selectedRegions.includes(region.id));
+    let queries: { id: string, query: string }[];
+
+    if (translateSearch) {
       try {
         const response = await fetch('/api/tk', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ searchInput, regions: selectedRegionObjects }),
+          body: JSON.stringify({ searchInput: q, regions: selectedRegionObjects }),
         });
 
         if (!response.ok) {
@@ -106,28 +105,36 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
         }
 
         const data = await response.json();
-        setTranslations(data.translations);
-
-        // 使用翻译后的关键词打开搜索标签
-        data.translations.forEach((translation: { id: string, query: string }) => {
-          const region = selectedRegionObjects.find(r => r.id === translation.id);
-          if (region) {
-            const tdl = region.tld;
-            const gl = region.country;
-            const hl = region.lang;
-            const q = encodeURIComponent(translation.query);
-            const v = '&gl=' + gl + '&hl=' + hl;
-            const searchUrl = tdl ? `https://www.google.${tdl}/search?q=${q}${v}` : `https://www.google.com/search?q=${q}${v}`;
-            window.open(searchUrl, "_blank");
-          }
-        });
+        queries = data.translations;
       } catch (error) {
         console.error('Error:', error);
+        queries = selectedRegionObjects.map(region => ({ id: region.id, query: q }));
       }
     } else {
-      // 如果不需要翻译，直接使用原来的搜索逻辑
-      handleButtonClick();
+      queries = selectedRegionObjects.map(region => ({ id: region.id, query: q }));
     }
+
+    const links = queries.map(({ id, query }) => {
+      const region = allRegions.find(r => r.id === id);
+      return region ? generateLink(region, query) : null;
+    }).filter(Boolean) as { id: string, url: string, query: string }[];
+
+    setGeneratedLinks(links);
+
+    // links.forEach(link => {
+    //   window.open(link.url, "_blank");
+    // });
+  }
+
+  const openAllLinks = () => {
+    generatedLinks.forEach(link => {
+      window.open(link.url, "_blank");
+    });
+  };
+
+  const onClear = () => {
+    setGeneratedLinks([]);
+    setSearchinput('');
   }
 
   if (!isClient) {
@@ -140,12 +147,12 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tighter sm:text-5xl mb-4">Multi-Region Search</h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-          One Click to Open Google Search Results Pages in Multiple Locations
+            One Click to Open Google Search Results Pages in Multiple Locations
           </p>
         </div>
 
         <div className="max-w-4xl mx-auto mb-8">
-          <form onSubmit={(e) => { e.preventDefault(); handleTranslateAndSearch(); }} className="w-full">
+          <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="w-full">
             <div className="flex flex-col md:flex-row items-stretch md:items-center w-full border border-gray-300 rounded-lg md:rounded-full shadow-md hover:shadow-lg focus-within:shadow-lg bg-white transition-shadow duration-200">
               <div className="flex items-center flex-grow p-4 md:py-3 md:px-6">
                 <i className="fas fa-search text-gray-400 mr-4 text-xl"></i>
@@ -154,6 +161,8 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
                   ref={searchInputRef}
                   type="text"
                   className="flex-grow text-lg focus:outline-none bg-transparent h-10 md:h-12"
+                  value={searchinput}
+                  onChange={(e) => setSearchinput(e.target.value)}
                   placeholder="Enter your search query"
                 />
               </div>
@@ -180,6 +189,62 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
             </div>
           </form>
         </div>
+
+        <section className="w-full  bg-gray-50">
+      <div className="container mx-auto px-4 pb-4">
+        {generatedLinks.length > 0 && (
+          <div className="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-8 relative">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">RegionSearcher Results</h2>
+            
+            <div className="flex justify-between items-center mb-6">
+              <Button
+                onClick={onClear}
+                className="rounded-sm md:rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                Clear
+              </Button>
+              
+              <Button
+                onClick={openAllLinks}
+                className="rounded-sm md:rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                Open All Links
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {generatedLinks.map((link) => {
+                const region = allRegions.find(r => r.id === link.id);
+                return (
+                  <a
+                    key={link.id}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-gray-50 hover:bg-white"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <img 
+                        src={region?.img_src} 
+                        alt={region?.region} 
+                        className="w-12 h-8 object-cover rounded"
+                      />
+                      <div>
+                        <p className="font-semibold text-gray-800">{region?.region}</p>
+                        <p className="text-sm text-gray-600">{region?.language}</p>
+                        <p className="text-indigo-600 hover:text-indigo-800 text-sm mt-1">
+                          Search: {link.query}
+                        </p>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
 
         <div className="bg-white rounded-lg shadow-md p-8 md:px-16">
           {geographicRegions.map((regionGroup, idx) => (
