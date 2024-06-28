@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selectedRegionObjects = selectedRegions.map(id => allRegions.find(r => r.id === id));
 
     try {
-      const response = await fetch('http://localhost:3000/api/tk', {
+      const response = await fetch('https://regionsearcher.com/api/tk', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
