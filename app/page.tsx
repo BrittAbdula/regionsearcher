@@ -175,10 +175,10 @@ export default async function Home() {
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-xl font-semibold mb-3">How many regions can I compare simultaneously?</h3>
-              <p>Currently, RegionSearcher allows you to search and view results from multiple regions. We're excited to announce that we'll soon be launching a new feature that enables side-by-side SERP (Search Engine Results Page) comparisons for two different regions on the same screen. This update will make it even easier to analyze and compare search results across different locations.</p>
+              <p>Currently, RegionSearcher allows you to search and view results from multiple regions. We&apos;re excited to announce that we&apos;ll soon be launching a new feature that enables side-by-side SERP (Search Engine Results Page) comparisons for two different regions on the same screen. This update will make it even easier to analyze and compare search results across different locations.</p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold mb-3">Is RegionSearcher's data real-time?</h3>
+              <h3 className="text-xl font-semibold mb-3">Is RegionSearcher&apos;s data real-time?</h3>
               <p>Yes, RegionSearcher provides real-time data. When you conduct a search, our system retrieves the most current results available from each selected region, ensuring you have access to up-to-date information for your analysis.</p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
@@ -191,7 +191,7 @@ export default async function Home() {
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-xl font-semibold mb-3">Is there a free trial? What do the paid plans include?</h3>
-              <p>Currently, all features of RegionSearcher are completely free to use. We believe in providing value to our users and allowing everyone to experience the benefits of our tool. In the future, we plan to introduce premium features based on the added value they provide. These upcoming paid features will be designed to offer enhanced capabilities for more advanced users and businesses with specific needs. We'll make sure to keep our users informed about any new premium features and pricing plans as they become available.</p>
+              <p>Currently, all features of RegionSearcher are completely free to use. We believe in providing value to our users and allowing everyone to experience the benefits of our tool. In the future, we plan to introduce premium features based on the added value they provide. These upcoming paid features will be designed to offer enhanced capabilities for more advanced users and businesses with specific needs. We&apos;ll make sure to keep our users informed about any new premium features and pricing plans as they become available.</p>
             </div>
           </div>
         </div>
