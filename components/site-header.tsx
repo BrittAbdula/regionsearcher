@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 const SCROLL_BOUNDARY = 120;
 
@@ -91,21 +92,21 @@ export function SiteHeader() {
         >
           <ul className="flex h-full w-full flex-row justify-between gap-6 lg:flex-row lg:justify-start lg:gap-1">
             <li className="flex items-center justify-center px-2 py-0.5">
-              <a href="/" className="flex h-8 w-8 lg:hidden">
+              <Link  href="/" className="flex h-8 w-8 lg:hidden">
                 <img src="/icon.png" className="h-full w-full" />
-              </a>
-              <a href="/" className="hidden lg:flex">
+              </Link >
+              <Link href="/" className="hidden lg:flex">
                 Home
-              </a>
+              </Link >
             </li>
             <li className="hidden items-center justify-center px-2 py-0.5 lg:flex">
-              <a href="/#features">Features</a>
+              <Link  href="/#features">Features</Link >
             </li>
             <li className="hidden items-center justify-center px-2 py-0.5 lg:flex">
-              <a href="/#about">About</a>
+              <Link  href="/#about">About</Link >
             </li>
             <li className="hidden items-center justify-center px-2 py-0.5 lg:flex">
-              <a href="/#faq">FAQ</a>
+              <Link  href="/#faq">FAQ</Link >
             </li>
             <AnimatePresence>
               <motion.div

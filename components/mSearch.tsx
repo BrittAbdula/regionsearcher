@@ -120,7 +120,10 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
     }).filter(Boolean) as { id: string, url: string, query: string }[];
 
     setGeneratedLinks(links);
-
+    // 当生成新的链接时，自动打开第一个链接
+    if (generatedLinks.length > 0) {
+      window.open(generatedLinks[0].url, "_blank");
+    }
     // links.forEach(link => {
     //   window.open(link.url, "_blank");
     // });
@@ -190,61 +193,61 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
           </form>
         </div>
 
-        <section className="w-full  bg-gray-50">
-      <div className="container mx-auto px-4 pb-4">
-        {generatedLinks.length > 0 && (
-          <div className="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-8 relative">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">RegionSearcher Results</h2>
-            
-            <div className="flex justify-between items-center mb-6">
-              <Button
-                onClick={onClear}
-                className="rounded-sm md:rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                Clear
-              </Button>
-              
-              <Button
-                onClick={openAllLinks}
-                className="rounded-sm md:rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                Open All Links
-              </Button>
-            </div>
+        <section className="w-full py-8 md:py-12 lg:py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-8 relative">
+              <h2 className="text-2xl font-bold mb-2 text-gray-800">Search Results for &apos;{searchinput}&apos;</h2>
+              <p className="text-sm text-gray-600 mb-6">We&apos;ve opened the first result for you. Click on other results to view them.</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {generatedLinks.map((link) => {
-                const region = allRegions.find(r => r.id === link.id);
-                return (
-                  <a
-                    key={link.id}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-gray-50 hover:bg-white"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <img 
-                        src={region?.img_src} 
-                        alt={region?.region} 
-                        className="w-12 h-8 object-cover rounded"
-                      />
-                      <div>
-                        <p className="font-semibold text-gray-800">{region?.region}</p>
-                        <p className="text-sm text-gray-600">{region?.language}</p>
-                        <p className="text-indigo-600 hover:text-indigo-800 text-sm mt-1">
-                          Search: {link.query}
-                        </p>
+              <div className="flex justify-between items-center mb-6">
+                <Button
+                  onClick={onClear}
+                  className="rounded-sm md:rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  Clear Results
+                </Button>
+
+                <Button
+                  onClick={openAllLinks}
+                  className="rounded-sm md:rounded-full bg-neutral-600 hover:bg-neutral-800 text-white px-4 py-2 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  Open All Results
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {generatedLinks.map((link, index) => {
+                  const region = allRegions.find(r => r.id === link.id);
+                  return (
+                    <a
+                      key={link.id}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-gray-50 hover:bg-white"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <img
+                          src={region?.img_src}
+                          alt={region?.region}
+                          className="w-12 h-8 object-cover rounded"
+                        />
+                        <div>
+                          <p className="font-semibold text-gray-800">{region?.region}</p>
+                          <p className="text-sm text-gray-600">{region?.language}</p>
+                          <p className="text-indigo-600 hover:text-indigo-800 text-sm mt-1">
+                            {index === 0 ? "Opened" : "Click to open"}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </a>
-                );
-              })}
+                    </a>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        )}
-      </div>
-    </section>
+        </section>
+
 
         <div className="bg-white rounded-lg shadow-md p-8 md:px-16">
           {geographicRegions.map((regionGroup, idx) => (
