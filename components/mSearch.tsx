@@ -193,7 +193,7 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
           </form>
         </div>
 
-        <section className="w-full py-8 md:py-12 lg:py-16 bg-gray-50">
+        <section className="w-full bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-8 relative">
               <h2 className="text-2xl font-bold mb-2 text-gray-800">Search Results for &apos;{searchinput}&apos;</h2>
