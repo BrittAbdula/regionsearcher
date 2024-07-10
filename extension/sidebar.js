@@ -83,7 +83,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadSelectedStates();
 
   searchInput.addEventListener('keydown', (e) => {
-    console.log('Key pressed:', e.key); // 调试语句
     if (e.key === 'Enter') {
       e.preventDefault(); // 阻止默认的表单提交行为
       handleSearch();
@@ -164,18 +163,79 @@ document.addEventListener('DOMContentLoaded', async () => {
         const v = `&gl=${gl}&hl=${hl}`;
         const searchUrl = tdl ? `https://www.google.${tdl}/search?q=${query}${v}` : `https://www.google.com/search?q=${query}${v}`;
         // window.open(searchUrl, "_blank");
-        urlsToOpen.push(searchUrl);
+        //urlsToOpen.push(searchUrl);
+        urlsToOpen.push({ url: searchUrl, query: query });
       }
     });
     // 创建新的浏览器窗口并打开多个标签页
+    // if (urlsToOpen.length > 0) {
+    //   chrome.windows.create({ url: urlsToOpen[0] }, async (newWindow) => {
+    //     // 打开第一个 URL 后，在同一个窗口中打开其余的 URL
+    //     for (let i = 1; i < urlsToOpen.length; i++) {
+    //       await new Promise(resolve => setTimeout(resolve, 300));
+    //       chrome.tabs.create({ windowId: newWindow.id, url: urlsToOpen[i] });
+    //     }
+    //   });
     if (urlsToOpen.length > 0) {
-      chrome.windows.create({ url: urlsToOpen[0] }, async (newWindow) => {
-        // 打开第一个 URL 后，在同一个窗口中打开其余的 URL
+      chrome.windows.create({ url: urlsToOpen[0].url }, async (newWindow) => {
+        console.log('New window created');
+    
+        // 等待第一个标签页加载完成并注入脚本
+        await injectScriptAndHighlight(newWindow.tabs[0].id, urlsToOpen[0].query);
+    
+        // 为其余标签页创建、等待加载完成、注入脚本并高亮关键词
         for (let i = 1; i < urlsToOpen.length; i++) {
           await new Promise(resolve => setTimeout(resolve, 300));
-          chrome.tabs.create({ windowId: newWindow.id, url: urlsToOpen[i] });
+          const newTab = await new Promise(resolve => {
+            chrome.tabs.create({ windowId: newWindow.id, url: urlsToOpen[i].url }, resolve);
+          });
+          await injectScriptAndHighlight(newTab.id, urlsToOpen[i].query);
         }
       });
+    }
+    
+    async function injectScriptAndHighlight(tabId, query) {
+      const maxRetries = 5;
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          // 等待页面加载完成
+          await new Promise(resolve => {
+            chrome.tabs.get(tabId, tab => {
+              if (tab.status === 'complete') {
+                resolve();
+              } else {
+                chrome.tabs.onUpdated.addListener(function listener(updatedTabId, info) {
+                  if (info.status === 'complete' && updatedTabId === tabId) {
+                    chrome.tabs.onUpdated.removeListener(listener);
+                    resolve();
+                  }
+                });
+              }
+            });
+          });
+    
+          // 注入脚本
+          await chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            files: ['contentScript.js']
+          });
+    
+          // 等待一段时间确保脚本已加载
+          await new Promise(resolve => setTimeout(resolve, 500));
+    
+          // 发送消息
+          await chrome.tabs.sendMessage(tabId, { action: "highlightKeywords", query: query });
+          console.log('Script injected and message sent successfully');
+          return;
+        } catch (error) {
+          console.error(`Attempt ${i + 1} failed:`, error);
+          if (i === maxRetries - 1) {
+            console.error('Max retries reached. Failed to inject script or highlight.');
+          } else {
+            await new Promise(resolve => setTimeout(resolve, 1000)); // 等待1秒后重试
+          }
+        }
+      }
     }
   }
 });

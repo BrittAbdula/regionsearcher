@@ -6,7 +6,6 @@ function createSidebar() {
     if (mySidebarElement) {
         return;
     }
-
     mySidebarElement = document.createElement('iframe');
     mySidebarElement.id = 'myChromeExtensionSidebar';
     mySidebarElement.src = chrome.runtime.getURL('sidebar.html');
@@ -18,7 +17,6 @@ function createSidebar() {
     mySidebarElement.style.border = 'none';
     mySidebarElement.style.transition = 'right 0.3s ease-in-out';
     mySidebarElement.style.zIndex = '9999';
-
 
     document.body.appendChild(mySidebarElement);
     
@@ -62,12 +60,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 console.log("Content script loaded successfully");
-
-// 发送一个消息到 background script 表示已经加载
-chrome.runtime.sendMessage({ action: "contentScriptLoaded" }, function (response) {
-    if (chrome.runtime.lastError) {
-        console.error("Error sending contentScriptLoaded message:", chrome.runtime.lastError);
-    } else {
-        console.log("contentScriptLoaded message sent successfully");
-    }
-});

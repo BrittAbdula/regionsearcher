@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import TrendChart from '@/components/TrendChart';
 
 type Region = {
   region: string;
@@ -34,6 +35,8 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
   const [isClient, setIsClient] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [generatedLinks, setGeneratedLinks] = useState<{ id: string, url: string, query: string }[]>([]);
+  const [trendData, setTrendData] = useState<{ country: string; value: number }[]>([]);
+
 
   useEffect(() => {
     setIsClient(true);
@@ -127,6 +130,9 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
     // links.forEach(link => {
     //   window.open(link.url, "_blank");
     // });
+
+    // 获取趋势数据
+    // await fetchTrendData(q);
   }
 
   const openAllLinks = () => {
@@ -139,6 +145,20 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
     setGeneratedLinks([]);
     setSearchinput('');
   }
+
+  async function fetchTrendData(query: string) {
+    // 这里应该是一个真实的API调用来获取谷歌趋势数据
+    // 为了演示，我们使用模拟数据
+    const mockData = selectedRegions.map(regionId => {
+      const region = allRegions.find(r => r.id === regionId);
+      return {
+        country: region?.region || '',
+        value: Math.floor(Math.random() * 100)
+      };
+    });
+    setTrendData(mockData);
+  }
+
 
   if (!isClient) {
     return null; // or a loading spinner
@@ -244,6 +264,13 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
                   );
                 })}
               </div>
+
+              {/* {trendData.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-xl font-bold mb-4">Google Trends Data</h3>
+                  <TrendChart data={trendData} />
+                </div>
+              )} */}
             </div>
           </div>
         </section>}

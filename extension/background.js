@@ -53,10 +53,7 @@ chrome.action.onClicked.addListener(async (tab) => {
 console.log("Background script loaded");
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "contentScriptLoaded") {
-    console.log("Content script loaded in tab:", sender.tab.id);
-    sendResponse({received: true});
-  } else if (request.action === "closeSidebar") {
+  if (request.action === "closeSidebar") {
     console.log("Closing sidebar from background");
     chrome.tabs.sendMessage(sender.tab.id, { action: "closeSidebar" });
     sendResponse({ success: true });
