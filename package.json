@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm run prisma:generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "pnpm prisma generate",
+    "prisma:generate": "prisma generate"
   },
   "dependencies": {
     "@next/third-parties": "^14.2.4",
