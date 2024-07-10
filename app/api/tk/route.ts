@@ -1,4 +1,3 @@
-import cors from '../cors';
 import { NextRequest, NextResponse } from 'next/server';
 
 // 模拟翻译 API（实际使用时替换为真实的翻译 API）
@@ -10,9 +9,7 @@ async function translateQuery(query: string, region: string, language: string) {
 }
 
 export async function POST(req: NextRequest) {
-    // 应用 CORS 中间件
-    await cors(req, NextResponse.next());
-
+    
     try {
         const { searchInput, regions } = await req.json();
 
