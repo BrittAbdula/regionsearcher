@@ -18,9 +18,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "lib/init-middleware.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/not-found.js"],
   "exclude": ["node_modules"]
 }

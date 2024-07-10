@@ -123,9 +123,12 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
     }).filter(Boolean) as { id: string, url: string, query: string }[];
 
     setGeneratedLinks(links);
+    console.log('---------setGeneratedLinks: ', links);
     // 当生成新的链接时，自动打开第一个链接
-    if (generatedLinks.length > 0) {
-      window.open(generatedLinks[0].url, "_blank");
+    if (links.length > 0 && links[0]?.url) {
+      window.open(links[0].url, "_blank");
+    } else {
+      console.warn('No valid links generated');
     }
     // links.forEach(link => {
     //   window.open(link.url, "_blank");
@@ -256,7 +259,7 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
                           <p className="font-semibold text-gray-800">{region?.region}</p>
                           <p className="text-sm text-gray-600">{region?.language}</p>
                           <p className="text-indigo-600 hover:text-indigo-800 text-sm mt-1">
-                            {index === 0 ? "Opened" : "Click to open"}
+                            {link.query.length > 50 ? link.query.slice(0, 50) + '...' : link.query}
                           </p>
                         </div>
                       </div>

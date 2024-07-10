@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { inseartSearchLog } from '@/data/searchLog';
 
 // 模拟翻译 API（实际使用时替换为真实的翻译 API）
 async function translateQuery(query: string, region: string, language: string) {
@@ -23,6 +24,13 @@ export async function POST(req: NextRequest) {
                 };
             })
         );
+
+        inseartSearchLog(searchInput, 
+            regions.map(({ id, region, language }: { id: string; region: string; language: string }) => 
+                ({ id, region, language })
+            ),
+            translations)
+    .catch(error => console.error('Failed to log inseartSearchLog:', error));
 
         return NextResponse.json({ translations });
     } catch (error: any) {
