@@ -63,7 +63,7 @@ async function callOpenAIAPI(prompt: string) {
                 'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: "gpt-3.5-turbo",
+                model: "gpt-4o",
                 messages: [
                     { role: "system", content: "You are a precise and accurate translator for search queries. Your translations are concise and optimized for the target region and language." },
                     { role: "user", content: prompt }
