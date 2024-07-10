@@ -7,7 +7,7 @@ function createSidebar() {
         return;
     }
     mySidebarElement = document.createElement('iframe');
-    mySidebarElement.id = 'myChromeExtensionSidebar';
+    mySidebarElement.id = 'RegionSearcherSidebar';
     mySidebarElement.src = chrome.runtime.getURL('sidebar.html');
     mySidebarElement.style.position = 'fixed';
     mySidebarElement.style.top = '0';
@@ -50,7 +50,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else if (request.action === "closeSidebar") {
         console.log("Closing sidebar.....");
         // 移除侧边栏
-        const sidebarElement = document.getElementById('myChromeExtensionSidebar');
+        const sidebarElement = document.getElementById('RegionSearcherSidebar');
         if (sidebarElement) {
             sidebarElement.remove();
         }

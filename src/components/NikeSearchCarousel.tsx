@@ -45,8 +45,8 @@ const ImageCard: React.FC<{ src: string; alt: string; country: string }> = ({ sr
         <Image
           src={src}
           alt={alt}
-          layout="fill"
-          objectFit="cover"
+          fill
+          className=" object-cover" 
         />
       </div>
       <p className="p-4 text-center font-semibold text-gray-800">{country}</p>

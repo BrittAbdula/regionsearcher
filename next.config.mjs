@@ -13,6 +13,16 @@ const nextConfig = {
         },
       ];
     },
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'ssl.gstatic.com',
+          port: '',
+          pathname: '/store/images/**',
+        },
+      ],
+    },
   };
   
   export default nextConfig;

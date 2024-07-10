@@ -2,6 +2,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import Image from 'next/image';
+import { CheckCircle } from 'lucide-react';
 import TrendChart from '@/components/TrendChart';
 
 type Region = {
@@ -35,6 +37,7 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
   const [isClient, setIsClient] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [generatedLinks, setGeneratedLinks] = useState<{ id: string, url: string, query: string }[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [trendData, setTrendData] = useState<{ country: string; value: number }[]>([]);
 
 
@@ -57,6 +60,7 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
   useEffect(() => {
     if (isClient) {
       localStorage.setItem('selectedRegions', JSON.stringify(selectedRegions));
+      preSearch();
     }
   }, [selectedRegions, isClient]);
 
@@ -80,42 +84,15 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
     return { id: region.id, url: searchUrl, query: query };
   }
 
-  async function handleSearch() {
+  async function preSearch() {
     const searchInput = document.getElementById('searchinput') as HTMLInputElement;
     const q = searchInput.value.trim();
-
-    if (!q) {
-      alert("Please Enter a Search Query");
-      searchInput.focus();
-      return;
-    }
-
-    const selectedRegionObjects = allRegions.filter(region => selectedRegions.includes(region.id));
+    const selectedRegionObjects = selectedRegions.map(id =>
+      allRegions.find(region => region.id === id)!
+    );
     let queries: { id: string, query: string }[];
 
-    if (translateSearch) {
-      try {
-        const response = await fetch('/api/tk', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ searchInput: q, regions: selectedRegionObjects }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        queries = data.translations;
-      } catch (error) {
-        console.error('Error:', error);
-        queries = selectedRegionObjects.map(region => ({ id: region.id, query: q }));
-      }
-    } else {
-      queries = selectedRegionObjects.map(region => ({ id: region.id, query: q }));
-    }
+    queries = selectedRegionObjects.map(region => ({ id: region.id, query: q }));
 
     const links = queries.map(({ id, query }) => {
       const region = allRegions.find(r => r.id === id);
@@ -123,30 +100,81 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
     }).filter(Boolean) as { id: string, url: string, query: string }[];
 
     setGeneratedLinks(links);
-    console.log('---------setGeneratedLinks: ', links);
-    // 当生成新的链接时，自动打开第一个链接
-    if (links.length > 0 && links[0]?.url) {
-      window.open(links[0].url, "_blank");
-    } else {
-      console.warn('No valid links generated');
+
+  }
+
+  async function handleSearch() {
+    setIsSearching(true);
+    try {
+      const searchInput = document.getElementById('searchinput') as HTMLInputElement;
+      const q = searchInput.value.trim();
+
+      if (!q) {
+        alert("Please Enter a Search Query");
+        searchInput.focus();
+        return;
+      }
+
+      const selectedRegionObjects = selectedRegions.map(id =>
+        allRegions.find(region => region.id === id)!
+      );
+      let queries: { id: string, query: string }[];
+
+      if (translateSearch) {
+        try {
+          const response = await fetch('/api/tk', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ searchInput: q, regions: selectedRegionObjects }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          const data = await response.json();
+          queries = data.translations;
+        } catch (error) {
+          console.error('Error:', error);
+          queries = selectedRegionObjects.map(region => ({ id: region.id, query: q }));
+        }
+      } else {
+        queries = selectedRegionObjects.map(region => ({ id: region.id, query: q }));
+      }
+
+      const links = queries.map(({ id, query }) => {
+        const region = allRegions.find(r => r.id === id);
+        return region ? generateLink(region, query) : null;
+      }).filter(Boolean) as { id: string, url: string, query: string }[];
+
+      setGeneratedLinks(links);
+
+
+
+      links.forEach(link => {
+        tryOpenWindow(link.url);
+      });
+    } finally {
+      setIsSearching(false);
     }
-    // links.forEach(link => {
-    //   window.open(link.url, "_blank");
-    // });
 
     // 获取趋势数据
     // await fetchTrendData(q);
   }
 
-  const openAllLinks = () => {
-    generatedLinks.forEach(link => {
-      window.open(link.url, "_blank");
-    });
-  };
-
   const onClear = () => {
     setGeneratedLinks([]);
     setSearchinput('');
+  }
+
+  function tryOpenWindow(url: string) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.click();
   }
 
   async function fetchTrendData(query: string) {
@@ -188,7 +216,7 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
                   type="text"
                   className="flex-grow text-lg focus:outline-none bg-transparent h-10 md:h-12"
                   value={searchinput}
-                  onChange={(e) => setSearchinput(e.target.value)}
+                  onChange={(e) => { setSearchinput(e.target.value); preSearch() }}
                   placeholder="Enter your search query"
                 />
               </div>
@@ -209,8 +237,20 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
             <div className="flex justify-center m-8">
               <Button
                 type="submit"
-                className="rounded-sm md:rounded-full bg-neutral-600 hover:bg-neutral-800 text-white px-8 py-6 text-base font-medium transition-all duration-200 shadow-md hover:shadow-lg">
-                Region Search
+                disabled={isSearching}
+                className={`rounded-sm md:rounded-full bg-neutral-600 hover:bg-neutral-800 text-white px-8 py-6 text-base font-medium transition-all duration-200 shadow-md hover:shadow-lg ${isSearching ? 'opacity-75 cursor-not-allowed' : ''}`}
+              >
+                {isSearching ? (
+                  <div className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Searching...
+                  </div>
+                ) : (
+                  'Region Search'
+                )}
               </Button>
             </div>
           </form>
@@ -219,24 +259,6 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
         {searchinput && <section className="w-full bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg p-8 relative">
-              <h2 className="text-2xl font-bold mb-2 text-gray-800">Search Results for &apos;{searchinput}&apos;</h2>
-              <p className="text-sm text-gray-600 mb-6">We&apos;ve opened the first result for you. Click on other results to view them.</p>
-
-              <div className="flex justify-between items-center mb-6">
-                <Button
-                  onClick={onClear}
-                  className="rounded-sm md:rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  Clear Results
-                </Button>
-
-                <Button
-                  onClick={openAllLinks}
-                  className="rounded-sm md:rounded-full bg-neutral-600 hover:bg-neutral-800 text-white px-4 py-2 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  Open All Results
-                </Button>
-              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {generatedLinks.map((link, index) => {
@@ -250,11 +272,14 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
                       className="block border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300 ease-in-out transform hover:scale-105 bg-gray-50 hover:bg-white"
                     >
                       <div className="flex items-center space-x-4">
-                        <img
-                          src={region?.img_src}
-                          alt={region?.region}
-                          className="w-12 h-8 object-cover rounded"
-                        />
+                        <div className="relative w-12 h-8">
+                          <Image
+                            src={region?.img_src || ''}
+                            alt={region?.region || ''}
+                            fill
+                            className="rounded object-cover"
+                          />
+                        </div>
                         <div>
                           <p className="font-semibold text-gray-800">{region?.region}</p>
                           <p className="text-sm text-gray-600">{region?.language}</p>
@@ -268,6 +293,24 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
                 })}
               </div>
 
+              {/* <h2 className="text-2xl font-bold mb-2 text-gray-800">Search Results for &apos;{searchinput}&apos;</h2> */}
+              <p className="text-sm text-gray-600 mt-6">We&apos;ve opened the first result for you. Click on other results to view them.</p>
+
+              <div className="flex justify-center items-center mt-6">
+                <Button
+                  onClick={onClear}
+                  className="rounded-sm md:rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  Clear Results
+                </Button>
+
+                {/* <Button
+                  onClick={openAllLinks}
+                  className="rounded-sm md:rounded-full bg-neutral-600 hover:bg-neutral-800 text-white px-4 py-2 text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  Open All Results
+                </Button> */}
+              </div>
               {/* {trendData.length > 0 && (
                 <div className="mt-8">
                   <h3 className="text-xl font-bold mb-4">Google Trends Data</h3>
@@ -287,20 +330,25 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
                 {regionGroup.regions.map((region) => (
                   <div
                     key={region.id}
-                    className={`flex items-center p-3 border rounded-md cursor-pointer transition-colors duration-200 ${selectedRegions.includes(region.id) ? 'bg-blue-100' : 'hover:bg-gray-100'
-                      }`}
-                    onClick={() => handleSelectRegion(region.id)}
+                    className={`flex items-center p-3 border rounded-md cursor-pointer transition-colors duration-200 ${selectedRegions.includes(region.id) ? 'bg-blue-100' : 'hover:bg-gray-100'}`}
+                    onClick={() => {
+                      handleSelectRegion(region.id);
+                    }}
                   >
-                    <Checkbox
-                      checked={selectedRegions.includes(region.id)}
-                      onCheckedChange={() => handleSelectRegion(region.id)}
-                      id={region.id}
-                      className="cursor-pointer mr-3"
+                    <CheckCircle
+                      className={`w-5 h-5 mr-3 ${selectedRegions.includes(region.id) ? 'text-green-500' : 'text-gray-300'}`}
                     />
-                    <img className="w-6 h-4 mr-3" src={region.img_src} alt={region.name} />
+                    <div className="relative w-6 h-4 mr-3">
+                      <Image
+                        src={region.img_src}
+                        alt={region.name || ''}
+                        fill
+                        className='object-cover rounded-md'
+                      />
+                    </div>
                     <div className="flex flex-col flex-grow overflow-hidden">
-                      <label className="font-medium cursor-pointer text-sm whitespace-nowrap overflow-hidden text-ellipsis" htmlFor={region.id}>{region.region}</label>
-                      <label className="text-xs cursor-pointer text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis" htmlFor={region.id}>{region.language}</label>
+                      <span className="font-medium text-sm whitespace-nowrap overflow-hidden text-ellipsis">{region.region}</span>
+                      <span className="text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis">{region.language}</span>
                     </div>
                   </div>
                 ))}

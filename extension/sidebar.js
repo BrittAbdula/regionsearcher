@@ -1,5 +1,6 @@
 // 假设我们已经从r.json加载了数据
 let regionsData;
+let selectedRegionsOrder = []; // 新增：用于存储选中区域的顺序
 
 // 模拟从r.json加载数据的函数
 async function loadRegionsData() {
@@ -73,6 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // 为checkbox添加change事件监听器
       checkbox.addEventListener('change', (e) => {
         regionCard.classList.toggle('selected', e.target.checked);
+        updateSelectedRegionsOrder(region.id, e.target.checked); // 新增：更新选中顺序
       });
 
       regionsContainer.appendChild(regionCard);
@@ -101,8 +103,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 处理搜索
   async function handleSearch() {
     const query = searchInput.value;
-    const selectedRegions = Array.from(document.querySelectorAll('.region-card input:checked'))
-      .map(checkbox => checkbox.value);
+    const selectedRegions = selectedRegionsOrder; // 使用有序的选中区域列表
 
     if (translateCheckbox.checked) {
       // 如果需要翻译，调用翻译API
@@ -167,15 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         urlsToOpen.push({ url: searchUrl, query: query });
       }
     });
-    // 创建新的浏览器窗口并打开多个标签页
-    // if (urlsToOpen.length > 0) {
-    //   chrome.windows.create({ url: urlsToOpen[0] }, async (newWindow) => {
-    //     // 打开第一个 URL 后，在同一个窗口中打开其余的 URL
-    //     for (let i = 1; i < urlsToOpen.length; i++) {
-    //       await new Promise(resolve => setTimeout(resolve, 300));
-    //       chrome.tabs.create({ windowId: newWindow.id, url: urlsToOpen[i] });
-    //     }
-    //   });
+
     if (urlsToOpen.length > 0) {
       chrome.windows.create({ url: urlsToOpen[0].url }, async (newWindow) => {
         console.log('New window created');
@@ -224,8 +217,17 @@ document.addEventListener('DOMContentLoaded', async () => {
           await new Promise(resolve => setTimeout(resolve, 500));
     
           // 发送消息
-          await chrome.tabs.sendMessage(tabId, { action: "highlightKeywords", query: query });
-          console.log('Script injected and message sent successfully');
+          await chrome.tabs.sendMessage(tabId, {action: "highlightDomain", domain: query}, function(response) {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError);
+              return;
+            }
+            if (response && response.success) {
+              console.log(`Highlighted ${response.count} links containing the domain ${query}`);
+            } else {
+              console.error('Failed to highlight domain:', response ? response.error : 'Unknown error');
+            }
+          });
           return;
         } catch (error) {
           console.error(`Attempt ${i + 1} failed:`, error);
@@ -240,21 +242,42 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+// 新增：更新选中区域的顺序
+function updateSelectedRegionsOrder(regionId, isChecked) {
+  if (isChecked) {
+    // 如果被选中且不在列表中，添加到列表末尾
+    if (!selectedRegionsOrder.includes(regionId)) {
+      selectedRegionsOrder.push(regionId);
+    }
+  } else {
+    // 如果取消选中，从列表中移除
+    const index = selectedRegionsOrder.indexOf(regionId);
+    if (index > -1) {
+      selectedRegionsOrder.splice(index, 1);
+    }
+  }
+}
+
 // 保存选中的状态
 function saveSelectedStates() {
   const selectedStates = {};
   document.querySelectorAll('.region-card input[type="checkbox"]').forEach(checkbox => {
     selectedStates[checkbox.id] = checkbox.checked;
   });
-  chrome.storage.local.set({ selectedRegions: selectedStates }, function () {
-    console.log('Selected states saved');
+  chrome.storage.local.set({ 
+    selectedRegions: selectedStates,
+    selectedRegionsOrder: selectedRegionsOrder // 新增：保存选中顺序
+  }, function () {
+    console.log('Selected states and order saved');
   });
 }
 
 // 加载保存的选中状态
 function loadSelectedStates() {
-  chrome.storage.local.get(['selectedRegions'], function (result) {
+  chrome.storage.local.get(['selectedRegions', 'selectedRegionsOrder'], function (result) {
     const selectedStates = result.selectedRegions || {};
+    selectedRegionsOrder = result.selectedRegionsOrder || []; // 新增：加载选中顺序
+
     document.querySelectorAll('.region-card input[type="checkbox"]').forEach(checkbox => {
       if (selectedStates.hasOwnProperty(checkbox.id)) {
         checkbox.checked = selectedStates[checkbox.id];
