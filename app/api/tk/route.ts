@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 function getTranslationPrompt(query: string, region: string, language: string) {
     const encodedQuery = `\`\`\`\n${query}\n\`\`\``;
 
-    return `I am searching for this keyword in the search results of different countries and regions. Your task is to help Translate the following search query into ${language} for the ${region} region.
+    return `I want to know how people in ${region} search for my original query in ${language}. Your task is to translate. Your task is to help Translate the following search query into ${language} for the ${region} region.
     Original query is enclosed between triple backticks:
     ${encodedQuery}
 
