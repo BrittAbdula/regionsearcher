@@ -1,7 +1,7 @@
 
 import { AnimatedBeamMultipleOutputDemo } from '@/components/multi';
 import NikeSearchCarousel from '@/components/NikeSearchCarousel';
-
+import Image from 'next/image';
 
 // 在文件顶部定义主题颜色
 const colors = {
@@ -84,14 +84,15 @@ export default function Features() {
                             </div>
                         </div>
                         <div className="lg:w-1/2 flex justify-center">
-                            <div className="w-full max-w-md">
-                                <img
-                                    src="/monthly-growth-data-for-different-countries.png"
-                                    alt="Monthly Growth Data for Different Countries"
-                                    className="w-full h-auto rounded-lg shadow-lg"
-                                />
-                            </div>
-                        </div>
+        <div className="relative w-full aspect-video max-w-2xl">
+          <Image
+            src="/monthly-growth-data-for-different-countries.png"
+            alt="Region Searcher Demo"
+            fill
+            className="object-contain rounded-lg shadow-lg"
+          />
+        </div>
+      </div>
                     </div>
                 </div>
             </section>
