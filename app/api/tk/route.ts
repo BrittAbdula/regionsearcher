@@ -10,7 +10,11 @@ async function translateQuery(query: string, region: string, language: string) {
 }
 
 export async function POST(req: NextRequest) {
-    await cors(req);
+    // 创建一个 Response 对象以传递给 cors 中间件
+    const res = new NextResponse();
+    // 应用 CORS 中间件
+    await cors(req, res);
+
     try {
         const { searchInput, regions } = await req.json();
 
@@ -84,4 +88,12 @@ async function callOpenAIAPI(prompt: string) {
         console.error('Error calling OpenAI API:', error);
         throw error;
     }
+}
+
+
+// 为了处理 CORS 预检请求，我们需要添加 OPTIONS 方法处理
+export async function OPTIONS(req: NextRequest) {
+    const res = new NextResponse();
+    await cors(req, res);
+    return res;
 }
