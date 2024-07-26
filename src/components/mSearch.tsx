@@ -229,7 +229,7 @@ const MSearch: React.FC<Props> = ({ geographicRegions }) => {
                     onCheckedChange={() => setTranslateSearch(!translateSearch)}
                     className="mr-2 h-4 w-4"
                   />
-                  <label htmlFor="translate" className="text-sm cursor-pointer whitespace-nowrap">Translate Keywords for Regions</label>
+                  <label htmlFor="translate" className="text-sm cursor-pointer whitespace-nowrap">Search in local languages</label>
                 </div>
               </div>
             </div>

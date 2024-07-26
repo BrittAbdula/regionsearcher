@@ -106,6 +106,9 @@ export function SiteHeader() {
               <Link  href="/#about">About</Link >
             </li>
             <li className="hidden items-center justify-center px-2 py-0.5 lg:flex">
+              <Link  href="/blog">Blog</Link >
+            </li>
+            <li className="hidden items-center justify-center px-2 py-0.5 lg:flex">
               <Link  href="/#faq">FAQ</Link >
             </li>
             <AnimatePresence>
@@ -131,7 +134,7 @@ export function SiteHeader() {
                       }}
                       transition={{ ease: "easeOut", duration: 0.5 }}
                       className="relative inline-flex w-fit shrink-0 items-center justify-center gap-x-1.5 overflow-hidden whitespace-nowrap rounded-full bg-neutral-900 px-3 py-1.5 text-white outline-none dark:bg-white dark:text-black md:hidden"
-                      href="/"
+                      href="#"
                     >
                       Home
                     </motion.a>

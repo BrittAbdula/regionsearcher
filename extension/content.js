@@ -11,8 +11,8 @@ function createSidebar() {
     mySidebarElement.src = chrome.runtime.getURL('sidebar.html');
     mySidebarElement.style.position = 'fixed';
     mySidebarElement.style.top = '0';
-    mySidebarElement.style.right = '-300px';
-    mySidebarElement.style.width = '300px';
+    mySidebarElement.style.right = '-400px'; // 修改为 -400px
+    mySidebarElement.style.width = '400px'; // 修改为 400px
     mySidebarElement.style.height = '100%';
     mySidebarElement.style.border = 'none';
     mySidebarElement.style.transition = 'right 0.3s ease-in-out';

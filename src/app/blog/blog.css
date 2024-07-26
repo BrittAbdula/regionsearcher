@@ -1,0 +1,29 @@
+.blog-container {
+  @apply max-w-3xl mx-auto px-4 py-8;
+}
+
+.blog-image-container {
+  @apply relative w-full h-64 md:h-96 rounded-lg overflow-hidden mb-8;
+}
+
+.blog-title {
+  @apply text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100;
+}
+
+.blog-date {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+.blog-summary {
+  @apply text-xl text-gray-700 dark:text-gray-300 mb-8 italic;
+}
+
+.blog-content {
+  @apply prose prose-lg dark:prose-invert max-w-none;
+}
+
+.blog-content img {
+  @apply rounded-lg shadow-md my-8;
+}
+
+/* 可以根据需要添加更多自定义样式 */

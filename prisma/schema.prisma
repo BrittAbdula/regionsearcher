@@ -21,3 +21,16 @@ model TranslationLog {
   translations Json
   createdAt    DateTime @default(now())
 }
+
+model BlogContent {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique @map("slug")
+  title       String   @map("title")
+  publishedAt DateTime @default(now()) @map("published_at") 
+  summary     String   @map("summary")
+  image       String?  @map("image")
+  content     String   @map("content")
+  contentHtml String?  @map("content_html")
+
+  @@map("rs_blog_content")
+}

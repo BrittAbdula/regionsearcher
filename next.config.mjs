@@ -17,6 +17,12 @@ const nextConfig = {
       remotePatterns: [
         {
           protocol: 'https',
+          hostname: 'songimi.com',
+          port: '',
+          pathname: '/**',
+        },
+        {
+          protocol: 'https',
           hostname: 'ssl.gstatic.com',
           port: '',
           pathname: '/store/images/**',

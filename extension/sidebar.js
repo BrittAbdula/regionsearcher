@@ -105,19 +105,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     const query = searchInput.value;
     const selectedRegions = selectedRegionsOrder; // 使用有序的选中区域列表
 
-    if (translateCheckbox.checked) {
-      // 如果需要翻译，调用翻译API
-      try {
+    // Show the spinner
+    const spinner = document.querySelector('#search-button .button-spinner');
+    const searchButtonText = document.querySelector('#search-button .button-text');
+
+    // Show the spinner and hide the button text
+    if (spinner && searchButtonText) {
+      spinner.style.display = 'block';
+      searchButtonText.style.display = 'none';
+    }
+
+    try {
+      if (translateCheckbox.checked) {
+        // 如果需要翻译，调用翻译API
         const translations = await translateKeywords(query, selectedRegions);
-        performSearch(translations);
-      } catch (error) {
-        console.error('Translation error:', error);
-        alert('An error occurred during translation. Please try again.');
+        await performSearch(translations);
+      } else {
+        // 如果不需要翻译，直接搜索
+        const searchData = selectedRegions.map(id => ({ id, query }));
+        await performSearch(searchData);
       }
-    } else {
-      // 如果不需要翻译，直接搜索
-      const searchData = selectedRegions.map(id => ({ id, query }));
-      performSearch(searchData);
+    } catch (error) {
+      console.error('Search error:', error);
+      alert('An error occurred during the search. Please try again.');
+    } finally {
+      // Hide the spinner and show the button text
+      if (spinner && searchButtonText) {
+        spinner.style.display = 'none';
+        searchButtonText.style.display = 'block';
+      }
     }
   }
 
@@ -150,12 +166,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // 执行搜索
-  function performSearch(searchData) {
-    // 准备要打开的 URL 数组
-    const urlsToOpen = [];
+  async function performSearch(searchData) {
     const allRegions = regionsData.flatMap(geoRegion => geoRegion.regions);
-
-    searchData.forEach(({ id, query }) => {
+    const urlsToOpen = searchData.map(({ id, query }) => {
       const region = allRegions.find((r) => r.id === id);
       if (region) {
         const tdl = region.tld;
@@ -163,82 +176,88 @@ document.addEventListener('DOMContentLoaded', async () => {
         const hl = region.lang;
         const v = `&gl=${gl}&hl=${hl}`;
         const searchUrl = tdl ? `https://www.google.${tdl}/search?q=${query}${v}` : `https://www.google.com/search?q=${query}${v}`;
-        // window.open(searchUrl, "_blank");
-        //urlsToOpen.push(searchUrl);
-        urlsToOpen.push({ url: searchUrl, query: query });
+        return { url: searchUrl, query: query };
       }
-    });
-
+      return null;
+    }).filter(Boolean);
+  
     if (urlsToOpen.length > 0) {
-      chrome.windows.create({ url: urlsToOpen[0].url }, async (newWindow) => {
-        console.log('New window created');
-    
-        // 等待第一个标签页加载完成并注入脚本
-        await injectScriptAndHighlight(newWindow.tabs[0].id, urlsToOpen[0].query);
-    
-        // 为其余标签页创建、等待加载完成、注入脚本并高亮关键词
-        for (let i = 1; i < urlsToOpen.length; i++) {
-          await new Promise(resolve => setTimeout(resolve, 300));
-          const newTab = await new Promise(resolve => {
-            chrome.tabs.create({ windowId: newWindow.id, url: urlsToOpen[i].url }, resolve);
+      // 创建一个新窗口，并同时打开所有标签页
+      const newWindow = await createWindowWithTabs(urlsToOpen.map(item => item.url));
+      console.log('New window created with all tabs');
+  
+      // 并行处理所有标签页
+      await Promise.all(newWindow.tabs.map((tab, index) => 
+        injectScriptAndHighlight(tab.id, urlsToOpen[index].query)
+      ));
+  
+      console.log('All tabs processed');
+    }
+  }
+  
+  function createWindowWithTabs(urls) {
+    return new Promise((resolve) => {
+      chrome.windows.create({ url: urls }, resolve);
+    });
+  }
+  
+  async function injectScriptAndHighlight(tabId, query) {
+    const maxRetries = 5;
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        await waitForTabLoad(tabId);
+        await injectScript(tabId);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await sendHighlightMessage(tabId, query);
+        return;
+      } catch (error) {
+        console.error(`Attempt ${i + 1} failed for tab ${tabId}:`, error);
+        if (i === maxRetries - 1) {
+          console.error(`Max retries reached for tab ${tabId}. Failed to inject script or highlight.`);
+        } else {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+    }
+  }
+  
+  function waitForTabLoad(tabId) {
+    return new Promise((resolve) => {
+      chrome.tabs.get(tabId, (tab) => {
+        if (tab.status === 'complete') {
+          resolve();
+        } else {
+          chrome.tabs.onUpdated.addListener(function listener(updatedTabId, info) {
+            if (info.status === 'complete' && updatedTabId === tabId) {
+              chrome.tabs.onUpdated.removeListener(listener);
+              resolve();
+            }
           });
-          await injectScriptAndHighlight(newTab.id, urlsToOpen[i].query);
         }
       });
-    }
-    
-    async function injectScriptAndHighlight(tabId, query) {
-      const maxRetries = 5;
-      for (let i = 0; i < maxRetries; i++) {
-        try {
-          // 等待页面加载完成
-          await new Promise(resolve => {
-            chrome.tabs.get(tabId, tab => {
-              if (tab.status === 'complete') {
-                resolve();
-              } else {
-                chrome.tabs.onUpdated.addListener(function listener(updatedTabId, info) {
-                  if (info.status === 'complete' && updatedTabId === tabId) {
-                    chrome.tabs.onUpdated.removeListener(listener);
-                    resolve();
-                  }
-                });
-              }
-            });
-          });
-    
-          // 注入脚本
-          await chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            files: ['contentScript.js']
-          });
-    
-          // 等待一段时间确保脚本已加载
-          await new Promise(resolve => setTimeout(resolve, 500));
-    
-          // 发送消息
-          await chrome.tabs.sendMessage(tabId, {action: "highlightDomain", domain: query}, function(response) {
-            if (chrome.runtime.lastError) {
-              console.error(chrome.runtime.lastError);
-              return;
-            }
-            if (response && response.success) {
-              console.log(`Highlighted ${response.count} links containing the domain ${query}`);
-            } else {
-              console.error('Failed to highlight domain:', response ? response.error : 'Unknown error');
-            }
-          });
-          return;
-        } catch (error) {
-          console.error(`Attempt ${i + 1} failed:`, error);
-          if (i === maxRetries - 1) {
-            console.error('Max retries reached. Failed to inject script or highlight.');
-          } else {
-            await new Promise(resolve => setTimeout(resolve, 1000)); // 等待1秒后重试
-          }
+    });
+  }
+  
+  function injectScript(tabId) {
+    return chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      files: ['contentScript.js']
+    });
+  }
+  
+  function sendHighlightMessage(tabId, query) {
+    return new Promise((resolve, reject) => {
+      chrome.tabs.sendMessage(tabId, { action: "highlightDomain", domain: query }, function (response) {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else if (response && response.success) {
+          console.log(`Highlighted ${response.count} links containing the domain ${query} in tab ${tabId}`);
+          resolve();
+        } else {
+          reject(`Failed to highlight domain in tab ${tabId}: ` + (response ? response.error : 'Unknown error'));
         }
-      }
-    }
+      });
+    });
   }
 });
 
@@ -264,7 +283,7 @@ function saveSelectedStates() {
   document.querySelectorAll('.region-card input[type="checkbox"]').forEach(checkbox => {
     selectedStates[checkbox.id] = checkbox.checked;
   });
-  chrome.storage.local.set({ 
+  chrome.storage.local.set({
     selectedRegions: selectedStates,
     selectedRegionsOrder: selectedRegionsOrder // 新增：保存选中顺序
   }, function () {

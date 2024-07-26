@@ -11,34 +11,33 @@
 <body>
     <div id="sidebar">
         <header>
-            <a href="https://regionsearcher.com" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center;">
-                <img src="/images/icon16.png" alt="Region Searcher" style="margin-right: 8px; width: 40px; height: 40px;">
+            <a href="https://regionsearcher.com" target="_blank"
+                style="text-decoration: none; color: inherit; display: flex; align-items: center;">
+                <img src="/images/icon16.png" alt="Region Searcher"
+                    style="margin-right: 8px; width: 40px; height: 40px;">
                 <h1 style="margin: 0; font-size: 24px;">Region Searcher</h1>
             </a>
             <button id="close-button">&times;</button>
         </header>
-        <!-- <nav>
-                <button class="tab-button active" data-tab="search">Search</button>
-                <button class="tab-button" data-tab="setting">Setting</button>
-            </nav> -->
         <main>
             <section id="search-tab" class="tab-content active">
                 <div id="search-container">
                     <input type="input" id="search-input" placeholder="Enter your search query">
-                    <button id="search-button">Search</button>
+                    <button id="search-button">
+                        <span class="button-content">
+                            <span class="button-text">Search</span>
+                            <span class="button-spinner"></span>
+                        </span>
+                    </button>
                     <div id="translate-container">
                         <input type="checkbox" id="translate-checkbox">
-                        <label for="translate-checkbox">Translate Keywords for Regions</label>
+                        <label for="translate-checkbox">Search in local languages</label>
                     </div>
                 </div>
                 <div id="regions-container">
                     <!-- Regions will be dynamically added here -->
                 </div>
             </section>
-            <!-- <section id="setting-tab" class="tab-content">
-                <h2>Settings</h2>
-                <p>Configure your search preferences here.</p>
-            </section> -->
         </main>
     </div>
     <script src="sidebar.js"></script>

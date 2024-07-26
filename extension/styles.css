@@ -7,7 +7,8 @@
     --hover-color: #3367D6;
 }
 
-body, html {
+body,
+html {
     margin: 0;
     padding: 0;
     font-family: 'Roboto', Arial, sans-serif;
@@ -93,12 +94,15 @@ main {
     background-color: var(--background-color);
     width: 100%;
     box-sizing: border-box;
-    scrollbar-width: none;  /* 对 Firefox */
-    -ms-overflow-style: none;  /* 对 IE 和 Edge */
+    scrollbar-width: none;
+    /* 对 Firefox */
+    -ms-overflow-style: none;
+    /* 对 IE 和 Edge */
 }
 
 main::-webkit-scrollbar {
-    display: none;  /* 对 Chrome, Safari 和 Opera */
+    display: none;
+    /* 对 Chrome, Safari 和 Opera */
 }
 
 .tab-content {
@@ -116,7 +120,6 @@ main::-webkit-scrollbar {
     gap: 5px;
 }
 
-
 #search-input {
     flex: 1;
     padding: 12px 20px;
@@ -125,7 +128,6 @@ main::-webkit-scrollbar {
     font-size: 16px;
     box-sizing: border-box;
 }
-
 
 #search-button {
     padding: 12px 20px;
@@ -137,10 +139,44 @@ main::-webkit-scrollbar {
     transition: background-color 0.3s ease;
     font-size: 16px;
     font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #search-button:hover {
     background-color: var(--hover-color);
+}
+
+.button-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 24px;
+    /* Added a fixed height */
+    line-height: 24px;
+    /* Added a line-height to vertically center the content */
+}
+
+.button-spinner {
+    display: none;
+    width: 24px;
+    height: 24px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 #translate-container {
@@ -154,7 +190,7 @@ main::-webkit-scrollbar {
     margin-bottom: 12px;
 }
 
-#regions-container > div {
+#regions-container>div {
     padding: 10px;
     background-color: white;
     border: 1px solid var(--border-color);
@@ -164,7 +200,7 @@ main::-webkit-scrollbar {
     align-items: center;
 }
 
-#regions-container > div:hover {
+#regions-container>div:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     background-color: rgb(219 234 254);
 }
@@ -205,4 +241,28 @@ main::-webkit-scrollbar {
     #regions-container {
         grid-template-columns: 1fr;
     }
+}
+
+nav {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px;
+    background-color: white;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.tab-button.active {
+    border-left: 4px solid var(--primary-color);
+    background-color: #E8F0FE;
+    font-weight: 500;
 }
